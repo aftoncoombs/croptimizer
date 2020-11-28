@@ -15,7 +15,7 @@ filter_to_season(season, crop_data = croptimizer::crops)
 data.frame containing crop data filtered to current season crops
 }
 \description{
-Filter To Season
+Filters crop data to only crops which grow in the specified season.
 }
 \examples{
 ## Filters to fall season
