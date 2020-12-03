@@ -1,0 +1,335 @@
+---
+title: "Where Do Sale Prices Come From"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{where_do_sale_prices_come_from}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE, echo = FALSE, message = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  echo = FALSE,
+  message = FALSE,
+  include = FALSE
+)
+```
+
+## Background
+This doc explains where certain logic required to get seed purchase prices 
+comes from.
+
+Most of the data required to build the croptimizer comes from the `rstardew`
+package, which contains data such as crop growing seasons, crop sale prices,
+etc. The `rstardew` package mostly sources this data (through a series of
+intermediary steps) from the .xnb data files associated with Stardew Valley.
+
+Some information, however, is missing from the .xnb data files, and requires
+parsing through the decompiled StardewValley.exe file. One such dataset is the
+seed purchase price, which is required to get the net profit from buying 
+seeds and selling crops.
+
+## Seed Shop Price
+The seed shop purchase price seems to be: 
+`(sale price * 2) * (1 + quality * 0.25)`. 
+
+This is based on the decompiled game data (accessible at `StardewValley.Object.salePrice()` and written in C#):
+
+```
+// StardewValley.Object
+using System;
+
+public override int salePrice()
+{
+	if (this is Fence)
+	{
+		return this.price;
+	}
+	if ((bool)this.isRecipe)
+	{
+		return (int)this.price * 10;
+	}
+	switch ((int)base.parentSheetIndex)
+	{
+	case 388:
+		if (Game1.year <= 1)
+		{
+			return 10;
+		}
+		return 50;
+	case 390:
+		if (Game1.year <= 1)
+		{
+			return 20;
+		}
+		return 100;
+	case 382:
+		if (Game1.year <= 1)
+		{
+			return 120;
+		}
+		return 250;
+	case 378:
+		if (Game1.year <= 1)
+		{
+			return 80;
+		}
+		return 160;
+	case 380:
+		if (Game1.year <= 1)
+		{
+			return 150;
+		}
+		return 250;
+	case 384:
+		if (Game1.year <= 1)
+		{
+			return 350;
+		}
+		return 750;
+	default:
+	{
+		float salePrice = (int)((float)((int)this.price * 2) * (1f + (float)(int)this.quality * 0.25f));
+		if ((int)base.category == -74)
+		{
+			salePrice = (int)Math.Max(1f, salePrice * Game1.MasterPlayer.difficultyModifier);
+		}
+		return (int)salePrice;
+	}
+	}
+}
+```
+
+There are a number of special cases in here, which I do not think apply to crops,
+although that should be verified.
+
+## JojaMart
+It seems that the JojaMart purchase price is generally `sale price * price mod`, wis one exception among the seed prices, though. Sunflower seeds (id = 431)
+have a purchase price of `50 * price mod`.
+
+This is based on the decompiled game data available at `StardewValley.Utility.getJojaStock()`.
+
+```
+// StardewValley.Utility
+using System;
+using System.Collections.Generic;
+using Microsoft.Xna.Framework;
+using StardewValley.Objects;
+
+public static Dictionary<ISalable, int[]> getJojaStock()
+{
+	Dictionary<ISalable, int[]> stock = new Dictionary<ISalable, int[]>();
+	stock.Add(new Object(Vector2.Zero, 167, int.MaxValue), new int[2]
+	{
+		75,
+		2147483647
+	});
+	stock.Add(new Wallpaper(21)
+	{
+		Stack = int.MaxValue
+	}, new int[2]
+	{
+		20,
+		2147483647
+	});
+	stock.Add(new Furniture(1609, Vector2.Zero)
+	{
+		Stack = int.MaxValue
+	}, new int[2]
+	{
+		500,
+		2147483647
+	});
+	float priceMod = (Game1.player.hasOrWillReceiveMail("JojaMember") ? 2f : 2.5f);
+	priceMod *= Game1.MasterPlayer.difficultyModifier;
+	if (Game1.currentSeason.Equals("spring"))
+	{
+		stock.Add(new Object(Vector2.Zero, 472, int.MaxValue), new int[2]
+		{
+			(int)((float)Convert.ToInt32(Game1.objectInformation[472].Split('/')[1]) * priceMod),
+			2147483647
+		});
+		stock.Add(new Object(Vector2.Zero, 473, int.MaxValue), new int[2]
+		{
+			(int)((float)Convert.ToInt32(Game1.objectInformation[473].Split('/')[1]) * priceMod),
+			2147483647
+		});
+		stock.Add(new Object(Vector2.Zero, 474, int.MaxValue), new int[2]
+		{
+			(int)((float)Convert.ToInt32(Game1.objectInformation[474].Split('/')[1]) * priceMod),
+			2147483647
+		});
+		stock.Add(new Object(Vector2.Zero, 475, int.MaxValue), new int[2]
+		{
+			(int)((float)Convert.ToInt32(Game1.objectInformation[475].Split('/')[1]) * priceMod),
+			2147483647
+		});
+		stock.Add(new Object(Vector2.Zero, 427, int.MaxValue), new int[2]
+		{
+			(int)((float)Convert.ToInt32(Game1.objectInformation[427].Split('/')[1]) * priceMod),
+			2147483647
+		});
+		stock.Add(new Object(Vector2.Zero, 429, int.MaxValue), new int[2]
+		{
+			(int)((float)Convert.ToInt32(Game1.objectInformation[429].Split('/')[1]) * priceMod),
+			2147483647
+		});
+		stock.Add(new Object(Vector2.Zero, 477, int.MaxValue), new int[2]
+		{
+			(int)((float)Convert.ToInt32(Game1.objectInformation[477].Split('/')[1]) * priceMod),
+			2147483647
+		});
+	}
+	if (Game1.currentSeason.Equals("summer"))
+	{
+		stock.Add(new Object(Vector2.Zero, 480, int.MaxValue), new int[2]
+		{
+			(int)((float)Convert.ToInt32(Game1.objectInformation[480].Split('/')[1]) * priceMod),
+			2147483647
+		});
+		stock.Add(new Object(Vector2.Zero, 482, int.MaxValue), new int[2]
+		{
+			(int)((float)Convert.ToInt32(Game1.objectInformation[482].Split('/')[1]) * priceMod),
+			2147483647
+		});
+		stock.Add(new Object(Vector2.Zero, 483, int.MaxValue), new int[2]
+		{
+			(int)((float)Convert.ToInt32(Game1.objectInformation[483].Split('/')[1]) * priceMod),
+			2147483647
+		});
+		stock.Add(new Object(Vector2.Zero, 484, int.MaxValue), new int[2]
+		{
+			(int)((float)Convert.ToInt32(Game1.objectInformation[484].Split('/')[1]) * priceMod),
+			2147483647
+		});
+		stock.Add(new Object(Vector2.Zero, 479, int.MaxValue), new int[2]
+		{
+			(int)((float)Convert.ToInt32(Game1.objectInformation[479].Split('/')[1]) * priceMod),
+			2147483647
+		});
+		stock.Add(new Object(Vector2.Zero, 302, int.MaxValue), new int[2]
+		{
+			(int)((float)Convert.ToInt32(Game1.objectInformation[302].Split('/')[1]) * priceMod),
+			2147483647
+		});
+		stock.Add(new Object(Vector2.Zero, 453, int.MaxValue), new int[2]
+		{
+			(int)((float)Convert.ToInt32(Game1.objectInformation[453].Split('/')[1]) * priceMod),
+			2147483647
+		});
+		stock.Add(new Object(Vector2.Zero, 455, int.MaxValue), new int[2]
+		{
+			(int)((float)Convert.ToInt32(Game1.objectInformation[455].Split('/')[1]) * priceMod),
+			2147483647
+		});
+		stock.Add(new Object(431, int.MaxValue, isRecipe: false, 100), new int[2]
+		{
+			(int)(50f * priceMod),
+			2147483647
+		});
+	}
+	if (Game1.currentSeason.Equals("fall"))
+	{
+		stock.Add(new Object(Vector2.Zero, 487, int.MaxValue), new int[2]
+		{
+			(int)((float)Convert.ToInt32(Game1.objectInformation[487].Split('/')[1]) * priceMod),
+			2147483647
+		});
+		stock.Add(new Object(Vector2.Zero, 488, int.MaxValue), new int[2]
+		{
+			(int)((float)Convert.ToInt32(Game1.objectInformation[488].Split('/')[1]) * priceMod),
+			2147483647
+		});
+		stock.Add(new Object(Vector2.Zero, 483, int.MaxValue), new int[2]
+		{
+			(int)((float)Convert.ToInt32(Game1.objectInformation[483].Split('/')[1]) * priceMod),
+			2147483647
+		});
+		stock.Add(new Object(Vector2.Zero, 490, int.MaxValue), new int[2]
+		{
+			(int)((float)Convert.ToInt32(Game1.objectInformation[490].Split('/')[1]) * priceMod),
+			2147483647
+		});
+		stock.Add(new Object(Vector2.Zero, 299, int.MaxValue), new int[2]
+		{
+			(int)((float)Convert.ToInt32(Game1.objectInformation[299].Split('/')[1]) * priceMod),
+			2147483647
+		});
+		stock.Add(new Object(Vector2.Zero, 301, int.MaxValue), new int[2]
+		{
+			(int)((float)Convert.ToInt32(Game1.objectInformation[301].Split('/')[1]) * priceMod),
+			2147483647
+		});
+		stock.Add(new Object(Vector2.Zero, 492, int.MaxValue), new int[2]
+		{
+			(int)((float)Convert.ToInt32(Game1.objectInformation[492].Split('/')[1]) * priceMod),
+			2147483647
+		});
+		stock.Add(new Object(Vector2.Zero, 491, int.MaxValue), new int[2]
+		{
+			(int)((float)Convert.ToInt32(Game1.objectInformation[491].Split('/')[1]) * priceMod),
+			2147483647
+		});
+		stock.Add(new Object(Vector2.Zero, 493, int.MaxValue), new int[2]
+		{
+			(int)((float)Convert.ToInt32(Game1.objectInformation[493].Split('/')[1]) * priceMod),
+			2147483647
+		});
+		stock.Add(new Object(431, int.MaxValue, isRecipe: false, 100), new int[2]
+		{
+			(int)(50f * priceMod),
+			2147483647
+		});
+		stock.Add(new Object(Vector2.Zero, 425, int.MaxValue), new int[2]
+		{
+			(int)((float)Convert.ToInt32(Game1.objectInformation[425].Split('/')[1]) * priceMod),
+			2147483647
+		});
+	}
+	stock.Add(new Object(Vector2.Zero, 297, int.MaxValue), new int[2]
+	{
+		(int)((float)Convert.ToInt32(Game1.objectInformation[297].Split('/')[1]) * priceMod),
+		2147483647
+	});
+	stock.Add(new Object(Vector2.Zero, 245, int.MaxValue), new int[2]
+	{
+		(int)((float)Convert.ToInt32(Game1.objectInformation[245].Split('/')[1]) * priceMod),
+		2147483647
+	});
+	stock.Add(new Object(Vector2.Zero, 246, int.MaxValue), new int[2]
+	{
+		(int)((float)Convert.ToInt32(Game1.objectInformation[246].Split('/')[1]) * priceMod),
+		2147483647
+	});
+	stock.Add(new Object(Vector2.Zero, 423, int.MaxValue), new int[2]
+	{
+		(int)((float)Convert.ToInt32(Game1.objectInformation[423].Split('/')[1]) * priceMod),
+		2147483647
+	});
+	Random r = new Random((int)Game1.stats.DaysPlayed + (int)Game1.uniqueIDForThisGame / 2 + 1);
+	int whichWallpaper = r.Next(112);
+	if (whichWallpaper == 21)
+	{
+		whichWallpaper = 22;
+	}
+	stock.Add(new Wallpaper(whichWallpaper)
+	{
+		Stack = int.MaxValue
+	}, new int[2]
+	{
+		250,
+		2147483647
+	});
+	stock.Add(new Wallpaper(r.Next(40), isFloor: true)
+	{
+		Stack = int.MaxValue
+	}, new int[2]
+	{
+		250,
+		2147483647
+	});
+	return stock;
+}
+```
