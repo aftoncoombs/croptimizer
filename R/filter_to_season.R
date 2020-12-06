@@ -27,25 +27,30 @@ filter_to_season <- function(season, crop_data = croptimizer::crops) {
     stop("crop data must be of class data.frame")
   }
 
+  ## Get the current season column
+  season_col <-
+    which(colnames(crop_data) == paste0("growth_season_", season))
+
   ## Filter to crops that are in the selected season
-  col_to_select <- paste0("growth_season_", season)
-  subset_vec <- crop_data[, col_to_select] == TRUE
+  subset_vec <- crop_data[, season_col] == TRUE
   filtered_data <- crop_data[subset_vec, ]
 
   filtered_data$days_remaining_in_growth_season <-
     filtered_data$total_days_in_growth_season
 
-  ## Get the current season column
-  season_col <-
-    which(colnames(filtered_data) == paste0("growth_season_", season))
+  ## Get the first season column (spring)
+  spring_col <-
+    which(colnames(filtered_data) == "growth_season_spring")
+  current_season_offset <- season_col - spring_col
 
   ## For multi-season crops that have passed some of their seasons,
   ## decrement days remaining
   for (r_idx in 1:nrow(filtered_data)) {
-    ## If num seasons > 1, decrement by days per season * num past growth seasons
-    if (filtered_data$total_num_seasons[r_idx] > 1) {
-      ## Loop over 1 to number of season in this row
-      for (c_idx in 1:(filtered_data$total_num_seasons[r_idx] - 1)) {
+    ## If num seasons > 1, decrement by days per season * num past grow seasons
+    if (filtered_data$total_num_seasons[r_idx] > 1 &
+        current_season_offset > 0) {
+      ## Loop over 1 to number of seasons in this row
+      for (c_idx in 1:current_season_offset) {
         ## If encounter a TRUE, decrement by that number of seasons
         if (filtered_data[r_idx, season_col - c_idx]) {
           filtered_data$days_remaining_in_growth_season[r_idx] <-
@@ -55,8 +60,6 @@ filter_to_season <- function(season, crop_data = croptimizer::crops) {
       }
     }
   }
-
-  ## TODO need to update walk-back over season columns to wrap around to winter
 
   return(filtered_data)
 }

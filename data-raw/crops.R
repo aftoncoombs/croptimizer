@@ -42,6 +42,15 @@ crops <-
                 chance_for_extra_crops, raised_seeds,
                 purchased_price = seed_price, sell_price = price.y) %>%
   dplyr::filter(!is.na(name)) %>%
+  dplyr::mutate(chance_for_extra_crops =
+                  tidyr::replace_na(chance_for_extra_crops, replace = 0),
+                max_harvest_increase_per_farming_level =
+                  tidyr::replace_na(max_harvest_increase_per_farming_level,
+                                    replace = 0),
+                min_extra_harvest =
+                  tidyr::replace_na(min_extra_harvest, replace = 0),
+                max_extra_harvest =
+                  tidyr::replace_na(max_extra_harvest, replace = 0)) %>%
   as.data.frame()
 
 usethis::use_data(crops, overwrite = TRUE)
