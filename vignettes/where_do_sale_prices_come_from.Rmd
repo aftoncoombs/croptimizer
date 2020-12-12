@@ -105,8 +105,34 @@ public override int salePrice()
 There are a number of special cases in here, which I do not think apply to crops,
 although that should be verified.
 
+There is, however, one exception which is Sunflowers, which have a base price
+ of 100 (not their game data-coded price), which multiplied by the modifer 
+ results in a purchase price of 200. This can be found in `StardewValley.Utilities.getShopStop()`:
+ 
+ ```
+ 		if (Game1.currentSeason.Equals("fall"))
+		{
+			stock.Add(new Object(Vector2.Zero, 487, int.MaxValue));
+			stock.Add(new Object(Vector2.Zero, 488, int.MaxValue));
+			stock.Add(new Object(Vector2.Zero, 490, int.MaxValue));
+			stock.Add(new Object(Vector2.Zero, 299, int.MaxValue));
+			stock.Add(new Object(Vector2.Zero, 301, int.MaxValue));
+			stock.Add(new Object(Vector2.Zero, 492, int.MaxValue));
+			stock.Add(new Object(Vector2.Zero, 491, int.MaxValue));
+			stock.Add(new Object(Vector2.Zero, 493, int.MaxValue));
+			stock.Add(new Object(431, int.MaxValue, isRecipe: false, 100));
+			stock.Add(new Object(Vector2.Zero, 425, int.MaxValue));
+			stock.Add(new Object(632, int.MaxValue, isRecipe: false, 3000));
+			stock.Add(new Object(633, int.MaxValue, isRecipe: false, 2000));
+			if (Game1.year > 1)
+			{
+				stock.Add(new Object(Vector2.Zero, 489, int.MaxValue));
+			}
+		}
+ ```
+
 ## JojaMart
-It seems that the JojaMart purchase price is generally `sale price * price mod`, wis one exception among the seed prices, though. Sunflower seeds (id = 431)
+It seems that the JojaMart purchase price is generally `sale price * price mod`, with one exception among the seed prices, though. Sunflower seeds (id = 431)
 have a purchase price of `50 * price mod`.
 
 This is based on the decompiled game data available at `StardewValley.Utility.getJojaStock()`.

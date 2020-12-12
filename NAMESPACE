@@ -2,6 +2,7 @@
 
 export("%>%")
 export(calc_crop_sale_price)
+export(calc_seed_prices)
 export(filter_to_days)
 export(filter_to_season)
 importFrom(magrittr,"%>%")

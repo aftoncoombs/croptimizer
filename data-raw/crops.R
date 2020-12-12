@@ -2,17 +2,23 @@
 DAYS_PER_SEASON <- 28
 SEASONS_PER_YEAR <- 4
 
-seed_prices <-
-  readr::read_csv("data-raw/seed_prices.csv") %>%
-  dplyr::select(name = Name,
-                pierre = "Pierre's General Store",
-                jojamart = "JojaMart") %>%
-  dplyr::filter(!(is.na(pierre) & is.na(jojamart))) %>%
-  dplyr::group_by(name) %>%
-  dplyr::mutate(seed_price = min(pierre, jojamart, na.rm = TRUE)) %>%
-  dplyr::mutate(source = ifelse(test = pierre == seed_price,
-                                yes = "pierre",
-                                no = "jojamart"))
+## TODO floor the jojamart seed prices
+## TODO remove this after creating get_seed_prices()
+## TODO finish writing tests
+## TODO add more params to get gold per day
+## TODO write net profit
+
+# seed_prices <-
+#   readr::read_csv("data-raw/seed_prices.csv") %>%
+#   dplyr::select(name = Name,
+#                 pierre = "Pierre's General Store",
+#                 jojamart = "JojaMart") %>%
+#   dplyr::filter(!(is.na(pierre) & is.na(jojamart))) %>%
+#   dplyr::group_by(name) %>%
+#   dplyr::mutate(seed_price = min(pierre, jojamart, na.rm = TRUE)) %>%
+#   dplyr::mutate(source = ifelse(test = pierre == seed_price,
+#                                 yes = "pierre",
+#                                 no = "jojamart"))
 
 crops <-
   rstardew::crops %>%
@@ -33,14 +39,16 @@ crops$total_days_in_growth_season <- ifelse(test = crops$total_days_in_growth_se
 
 crops <-
   crops %>%
-  dplyr::select(name = display_name.y, total_num_seasons, total_days_in_growth,
+  dplyr::select(name = display_name.y,
+                total_num_seasons, total_days_in_growth,
                 total_days_in_growth_season, growth_season_spring,
                 growth_season_summer, growth_season_fall,
                 growth_season_winter, regrow_after_harvest,
                 chance_for_extra_harvest, min_extra_harvest,
                 max_extra_harvest, max_harvest_increase_per_farming_level,
                 chance_for_extra_crops, raised_seeds,
-                purchased_price = seed_price, sell_price = price.y) %>%
+                seed_sell_price = price.x, purchased_price = seed_price,
+                sell_price = price.y) %>%
   dplyr::filter(!is.na(name)) %>%
   dplyr::mutate(chance_for_extra_crops =
                   tidyr::replace_na(chance_for_extra_crops, replace = 0),
@@ -50,7 +58,22 @@ crops <-
                 min_extra_harvest =
                   tidyr::replace_na(min_extra_harvest, replace = 0),
                 max_extra_harvest =
-                  tidyr::replace_na(max_extra_harvest, replace = 0)) %>%
+                  tidyr::replace_na(max_extra_harvest, replace = 0),
+                purchased_price_pierre = 2 * seed_sell_price,
+                purchased_price_joja_no_membership = 2.5 * seed_sell_price) %>%
+  dplyr::mutate(purchased_price_joja_with_membership = purchased_price_pierre) %>%
+  dplyr::mutate(purchased_price_pierre =
+                  ifelse(test = name == "Sunflower",
+                         yes = 200,
+                         no = purchased_price_pierre),
+                purchased_price_joja_no_membership =
+                  ifelse(test = name == "Sunflower",
+                         yes = 125,
+                         no = purchased_price_joja_no_membership),
+                purchased_price_joja_with_membership =
+                  ifelse(test = name == "Sunflower",
+                         yes = 100,
+                         no = purchased_price_joja_with_membership)) %>%
   as.data.frame()
 
 usethis::use_data(crops, overwrite = TRUE)
