@@ -4,7 +4,11 @@
 \alias{calc_seed_prices}
 \title{Calc Seed Prices}
 \usage{
-calc_seed_prices(crop_data = croptimizer::crops, joja_member = FALSE)
+calc_seed_prices(
+  crop_data = croptimizer::crops,
+  joja_member = FALSE,
+  drop_cols = FALSE
+)
 }
 \arguments{
 \item{crop_data}{data.frame containing crop data, defaults to the data
@@ -13,9 +17,16 @@ contained in the croptimizer package}
 \item{joja_member}{logical specifying if you have the JojaMart membership}
 }
 \value{
-data.frame containing crop_data with sell_price and source columns
+data.frame containing crop_data with seed_price and source columns
 appended
 }
 \description{
 Calc Seed Prices
+}
+\examples{
+fall_crops <-
+filter_to_season(season = "fall", crop_data = croptimizer::crops)
+calc_seed_prices(crop_data = fall_crops,
+joja_member = FALSE,
+drop_cols = TRUE)
 }

@@ -4,11 +4,20 @@
 \alias{calc_crop_sale_price}
 \title{Calculate Crop Sale Price}
 \usage{
-calc_crop_sale_price(crop_data = croptimizer::crops)
+calc_crop_sale_price(
+  crop_data = croptimizer::crops,
+  farming_level = 1,
+  level_5_tiller = NULL
+)
 }
 \arguments{
 \item{crop_data}{data.frame containing crop data, which must contain the
 columns `sell_price`, `chance_for_extra_crops`, `max_extra_harvest`}
+
+\item{farming_level}{integer representing current farming level}
+
+\item{level_5_tiller}{logical representing taking the tiller specialization
+at level 5}
 }
 \value{
 
