@@ -1,19 +1,19 @@
 ## Load crops data
-DAYS_PER_SEASON <- 28
-SEASONS_PER_YEAR <- 4
 
-## TODO check out wanderer.io
 ## TODO add more params to calc_crop_sale_price
-## - coerce numeric to integer if possible for farming level (fix 1 broken test)
-## - do you have level 5 tiller skill
 ## - farming level (is there a max farming level?)
-## - fertilizer/speed grow (probably appended via calc_most_efficient_soil_mod)
-## - which level 10 skill (agriculturalist or artisan)
+## - what is max_harvest_increase_per_farming_level?
+## - fertilizer/speed grow (probably appended via calc_most_efficient_soil_mod?)
+## but, remember to pass through the ability to append or not append soil,
+## vs. letting the user select, via some parameter in higher-level optimization
+## function
 ## TODO finish writing tests for calc_crop_sale_price
-## TODO add constants
 ## TODO write net profit
 ## TODO write calc_most_efficient_soil_mod
-## TODO fix inefficient calc_crop_sale_price by actually selecting the joja col
+## TODO fix inefficient calc_crop_sale_price by actually selecting the joja_col
+## TODO give a warning if farming_level for calc_crop_sale_price has a non-zero
+## decimal
+## TODO add error checking to filter_to_days for level_10_agri
 
 crops <-
   rstardew::crops %>%
@@ -25,11 +25,11 @@ crops <-
 crops$total_days_in_growth <- rowSums(crops[ , grepl(pattern = "^days_in_stage_", x = colnames(crops))], na.rm = TRUE)
 crops$total_num_seasons <-
   rowSums(crops[ , grepl(pattern = "^growth_season_", x = colnames(crops))], na.rm = TRUE)
-crops$total_days_in_growth_season <- crops$total_num_seasons * DAYS_PER_SEASON
+crops$total_days_in_growth_season <-
+  crops$total_num_seasons * seasonal_values$days_per_season
 crops$total_days_in_growth_season <-
   ifelse(test = crops$total_days_in_growth_season ==
-           DAYS_PER_SEASON * SEASONS_PER_YEAR,
-
+           seasonal_values$days_per_season * seasonal_values$seasons_per_year,
          yes = Inf,
          no = crops$total_days_in_growth_season)
 

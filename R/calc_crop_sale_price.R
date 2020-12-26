@@ -29,12 +29,17 @@ calc_crop_sale_price <- function(crop_data = croptimizer::crops,
     stop("crop_data must contain column max_extra_harvest")
   }
 
-  if (! "numeric" %in% class(farming_level)) {
-    stop("farming_level must be of class numeric")
+  if (! ("numeric" %in% class(farming_level)) |
+      "integer" %in% class(farming_level)) {
+    stop("farming_level must be of class numeric or integer")
   }
 
   if (farming_level < 1) {
     stop("farming_level must be >= 1")
+  }
+
+  if (farming_level > 13) {
+    stop("farming_level must not exceed 10")
   }
 
   if (farming_level >= 5 & is.null(level_5_tiller)) {
@@ -45,11 +50,20 @@ calc_crop_sale_price <- function(crop_data = croptimizer::crops,
     stop("level_5_tiller must be NULL or of class logical")
   }
 
+  farming_level <- as.integer(farming_level)
+
+  ## Add 10% tiller bonus
+  tiller_bonus <-
+    ifelse(test = !is.null(level_5_tiller) && level_5_tiller == TRUE,
+           yes = 1.1,
+           no = 1)
+
   ## Calculate the expected value
   crop_data$exp_sell_price <-
-    crop_data$sell_price +
+    (crop_data$sell_price +
     (crop_data$chance_for_extra_crops *
-       crop_data$max_extra_harvest)
+       crop_data$max_extra_harvest)) *
+    tiller_bonus
 
   return(crop_data)
 }

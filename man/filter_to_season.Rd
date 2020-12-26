@@ -4,7 +4,12 @@
 \alias{filter_to_season}
 \title{Filter To Season}
 \usage{
-filter_to_season(season, crop_data = croptimizer::crops)
+filter_to_season(
+  season,
+  crop_data = croptimizer::crops,
+  level_10_agri = NULL,
+  seasonsal_const
+)
 }
 \arguments{
 \item{season}{character containing current season}

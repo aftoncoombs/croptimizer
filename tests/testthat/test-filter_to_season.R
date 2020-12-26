@@ -64,3 +64,17 @@ test_that("filtering to fall produces correct days remaining", {
                         28 * fall_test$growth_season_spring)),
                nrow(fall_test))
 })
+
+test_that("error if level_10_agri is not null or not of class logical", {
+  expect_error(filter_to_season(season = "fall", level_10_agri = 1))
+  expect_error(filter_to_season(season = "fall", level_10_agri = as.integer(1)))
+  expect_error(filter_to_season(season = "fall", level_10_agri = "boba"))
+})
+
+test_that("if level_10_agri, then crops grow faster by 10%", {
+  no_agri <- filter_to_season(season = "fall")
+  yes_agri <- filter_to_season(season = "fall", level_10_agri = TRUE)
+  expect_equal(ceiling(no_agri$total_days_in_growth * 0.9),
+               yes_agri$total_days_in_growth)
+})
+

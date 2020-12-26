@@ -13,7 +13,9 @@
 #'
 #' @examples
 #' filter_to_days(day = 25)
-filter_to_days <- function(day_of_season, crop_data = croptimizer::crops) {
+filter_to_days <- function(day_of_season,
+                           crop_data = croptimizer::crops,
+                           seasonal_values = croptimizer::seasonal_values) {
   if (is.null(day_of_season)) {
     stop("day_of_season must be non-null")
   }
@@ -22,9 +24,9 @@ filter_to_days <- function(day_of_season, crop_data = croptimizer::crops) {
     stop("day_of_season must be of class integer or numeric")
   }
 
-  MIN_DAY_OF_SEASON <- 1
-  DAYS_PER_SEASON <- 28
-  if (day_of_season < MIN_DAY_OF_SEASON | day_of_season > DAYS_PER_SEASON) {
+  min_day_of_season <- seasonal_values$min_day_of_season
+  days_per_season <- seasonal_values$days_per_season
+  if (day_of_season < min_day_of_season | day_of_season > days_per_season) {
     stop("day_of_season must be a value >= 1 and <= 28")
   }
 
