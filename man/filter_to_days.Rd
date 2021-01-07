@@ -4,7 +4,11 @@
 \alias{filter_to_days}
 \title{Filter To Days}
 \usage{
-filter_to_days(day_of_season, crop_data = croptimizer::crops)
+filter_to_days(
+  day_of_season,
+  crop_data = croptimizer::crops,
+  seasonal_values = croptimizer::seasonal_values
+)
 }
 \arguments{
 \item{day_of_season}{integer or numeric representing the date (current day

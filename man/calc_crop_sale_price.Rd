@@ -6,8 +6,9 @@
 \usage{
 calc_crop_sale_price(
   crop_data = croptimizer::crops,
-  farming_level = 1,
-  level_5_tiller = NULL
+  farming_level = 0,
+  level_5_tiller = NULL,
+  soil_mod = NULL
 )
 }
 \arguments{

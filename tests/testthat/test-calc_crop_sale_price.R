@@ -12,13 +12,13 @@ test_that("error occurs when needed columns are missing", {
 test_that("exp sale price = sell price + prob extra crops * num extra crops", {
   exp_value_test <- calc_crop_sale_price()
   expect_equal(exp_value_test$exp_sell_price,
-               croptimizer::crops$sell_price +
-                 (croptimizer::crops$chance_for_extra_crops *
-                    croptimizer::crops$max_extra_harvest))
+               exp_value_test$sell_price  *
+                 exp_value_test$exp_num_crops)
+
 })
 
 test_that("error when farming_level < 1", {
-  expect_error(calc_crop_sale_price(farming_level = 0))
+  expect_error(calc_crop_sale_price(farming_level = -1))
 })
 
 test_that("error when farming_level is not integer or numeric", {
@@ -45,4 +45,23 @@ test_that("level_5_tiller results in 10% increase in crop sale price", {
   yes_tiller <- calc_crop_sale_price(level_5_tiller = TRUE)
   expect_equal(no_tiller$exp_sell_price * 1.1,
                yes_tiller$exp_sell_price)
+})
+
+test_that("non-integer farming level produces warning", {
+  expect_warning(calc_crop_sale_price(farming_level = 1.5))
+})
+
+test_that("non-null and non-character soil_mod produces error", {
+  expect_error(calc_crop_sale_price(soil_mod = TRUE))
+  expect_error(calc_crop_sale_price(soil_mod = 1))
+})
+
+test_that("non-standard crop names produces error", {
+  expect_error(calc_crop_sale_price(soil_mod =
+                                      c("boba" = "quality fertilizer")))
+})
+
+test_that("standard crop names are silent", {
+  expect_silent(calc_crop_sale_price(soil_mod =
+                                       c("blueberry" = "quality fertilizer")))
 })
