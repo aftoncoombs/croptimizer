@@ -11,9 +11,12 @@ test_that("error occurs when needed columns are missing", {
 
 test_that("exp sale price = sell price + prob extra crops * num extra crops", {
   exp_value_test <- calc_crop_sale_price()
+  ## Pre-calulated expected value at level 0
+  mod_at_level_0 <- 1.00995
   expect_equal(exp_value_test$exp_sell_price,
                exp_value_test$sell_price  *
-                 exp_value_test$exp_num_crops)
+                 exp_value_test$exp_num_crops *
+                 mod_at_level_0)
 
 })
 
@@ -63,5 +66,5 @@ test_that("non-standard crop names produces error", {
 
 test_that("standard crop names are silent", {
   expect_silent(calc_crop_sale_price(soil_mod =
-                                       c("blueberry" = "quality fertilizer")))
+                                       c("Blueberry" = "Quality Fertilizer")))
 })

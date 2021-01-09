@@ -13,14 +13,34 @@ append_soil_mod(
 \arguments{
 \item{crop_data}{a data.frame containing the data about the crops,
 expected to contain the same columns as `croptimizer::crops`}
+
+\item{soil_mods}{accepts NULL, a singleton character for a soil
+modifier, a vector of length = nrow(crop_data) without names, or
+a names vector of any length where names are unique and represent
+crop modifiers}
 }
 \value{
 crop_data with a soil_mod column appended based upon user
-input if provided, and containing "normal" if not
+input if provided, and containing "Normal" if not
 }
 \description{
 Appends a column for soil modification (such as fertilizer or speed-gro)
 to the crop data for later use in calculating what fits in season (using
 `filter_to_season()` and `filter_to_days()`) and in calculating what the
 expected sale price is (using `calc_crop_sale_price()`).
+}
+\details{
+If soil_mods are NULL, "Normal" is repeated. If soil_mods is a singleton,
+it is repeated. If soil_mods is a non-name vector, cbind is attempted.
+If soil_mod is a named vector, names should be a crop name (e.g. "Blueberry")
+and a left join will be attempted.
+}
+\examples{
+## Example with named soil mods
+  soil_mods <- c("Blueberry" = "Quality Fertilizer",
+  "Bok Choy" = "Basic Fertilizer",
+  "Cauliflower" = "Deluxe Fertilizer",
+  "Corn" = "Speed-Gro")
+  soil_mod_data <-
+  append_soil_mod(soil_mods = soil_mods)
 }

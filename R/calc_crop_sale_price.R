@@ -56,7 +56,7 @@ calc_crop_sale_price <- function(crop_data = croptimizer::crops,
   }
 
   if (!is.null(soil_mod) & !"character" %in% class(soil_mod)) {
-    error("soil_mod must be NULL or of type character")
+    stop("soil_mod must be NULL or of type character")
   }
 
   ## Standardize the crop names if soil_mod is non-null
@@ -87,11 +87,44 @@ calc_crop_sale_price <- function(crop_data = croptimizer::crops,
            yes = 1,
            no = crop_data$min_extra_harves + crop_data$chance_for_extra_crops)
 
+  ## If soil mod is not already appended, assume no soil mod
+  if (! "soil_mod" %in% colnames(crop_data)) {
+    crop_data$soil_mod <- rep("Normal")
+  }
+
+  ## Calculate numeric soil mod
+  crop_data <-
+    crop_data %>%
+    dplyr::mutate(num_soil_mod =
+                    ifelse(test = soil_mod == "Quality Fertilizer",
+                           yes = 2,
+                           no = ifelse(test = soil_mod == "Basic Fertilizer",
+                                       yes = 1,
+                                       no = 0)))
+
+  ## Get probabilities
+  ## 1*P(normal) + 1.25*P(silver) + 1.5*P(gold)
+  ## where P(gold) = 0.01 + 0.2 * (lvl/10 + q * (lvl+2)/12)
+  ## P(silver) = MIN(2*P(gold),0.75) * (1-P(gold))
+  ## P(normal) = 1 - P(silver) - P(gold)
+  crop_data <-
+    crop_data %>%
+    dplyr::mutate(p_gold =
+                    0.01 + 0.2 *
+                    (farming_level/10 + num_soil_mod *
+                       (farming_level+2)/12)) %>%
+    dplyr::mutate(p_silver =
+                    min(c(2*p_gold, 0.75), na.rm = TRUE) * (1-p_gold)) %>%
+    dplyr::mutate(p_normal = 1 - p_gold - p_silver)
+
   ## Calculate the expected value
-  crop_data$exp_sell_price <-
-    crop_data$sell_price  *
-    crop_data$exp_num_crops *
-    tiller_bonus
+  crop_data <-
+    crop_data %>%
+    dplyr::mutate(exp_sell_price =
+                    sell_price *
+                    exp_num_crops *
+                    (p_normal + 1.25 * p_silver + 1.5 * p_gold) *
+                    tiller_bonus)
 
   return(crop_data)
 }

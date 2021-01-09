@@ -1,22 +1,20 @@
 ## Load crops data
 
+## Example flow of functions
+## 1) Start with crop data in package
+## 2) calc base seed price with calc_seed_prices()
+## 3) append soil modification (e.g. speed gro, fert)
+## 4) filter_to_season()/filter_to_days()
+## 5) get sale price with calc_crop_sale_price()
+
+## Tonight's TODO's
+## TODO: add optimize_soil_mod() function (?)
+
+## Other TODO's
 ## TODO: take package data out of user-accessible params
-## TODO: finish up the names soil mods in append_soil_mod
 ## TODO: add speed-gro option into filter_to_days
-## TODO: add optimize_soil_mod() function
-## TODO: verify that tiller bonus applies last (no addition anywhere?) for
-## calc_crop_sale_price()
 ## TODO find where in the game code the crop sell price
 ## relationships to level is located (see https://stardewvalleywiki.com/Farming#Crop_Quality_Frequency)
-## TODO add more params to calc_crop_sale_price
-## - Add the logic for farming level (first use wiki, then find
-## where in the code this is determined)
-## - fertilizer/speed grow first in calc_crop_sale_price
-## - second, append fertilizer/speed grow optionally automatically
-## (probably appended via calc_most_efficient_soil_mod?)
-## but, remember to pass through the ability to append or not append soil,
-## vs. letting the user select, via some parameter in higher-level optimization
-## function
 ## TODO write net profit
 ## TODO write calc_most_efficient_soil_mod
 ## TODO fix inefficient calc_crop_sale_price by actually selecting the joja_col
