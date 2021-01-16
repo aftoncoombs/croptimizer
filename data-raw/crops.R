@@ -7,21 +7,25 @@
 ## 4) filter_to_season()/filter_to_days()
 ## 5) get sale price with calc_crop_sale_price()
 
-## Tonight's TODO's
-## TODO: add optimize_soil_mod() function (?)
+## Little TODO's
+## TODO: Fix error in append soil mod that only allows joining on names
+## if a single element (doesn't work for multiples) and also update tests
+## TODO: Add checking for non-standard fertilizers and speed gro
+## (specifically in the case of a non-named vector)
+## TODO: Verify that speed gro results are floored
+## TODO: Fix inefficient calc_crop_sale_price by actually selecting the joja_col
+## TODO: Work on the vignette
 
-## Other TODO's
+## Medium TODO's
+## TODO: Account for the cost of soil modifiers
+## TODO: add optimize_soil_mod() function
 ## TODO: take package data out of user-accessible params
-## TODO: add speed-gro option into filter_to_days
-## TODO find where in the game code the crop sell price
-## relationships to level is located (see https://stardewvalleywiki.com/Farming#Crop_Quality_Frequency)
-## TODO write net profit
-## TODO write calc_most_efficient_soil_mod
-## TODO fix inefficient calc_crop_sale_price by actually selecting the joja_col
-## TODO give a warning if farming_level for calc_crop_sale_price has a non-zero
-## decimal
-## TODO add error checking to filter_to_days for level_10_agri
-## TODO add in specialty shop crops and seeds
+
+## Big TODO's
+## TODO: Accept a list of items you already have, and mark their price as 0
+## TODO: Pass the size of available land
+## TODO: maybe? address contiguous crops
+## TODO: add in specialty shop crops and seeds
 
 crops <-
   rstardew::crops %>%

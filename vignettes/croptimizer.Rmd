@@ -1,0 +1,113 @@
+---
+title: "Croptimizer"
+author: "Afton Coombs"
+date: "1/15/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Introduction
+This vignette provides an introduction to the `croptimizer` package
+with a short walk through the functions use or a typical croptimizing
+exercise.
+
+## Crop data
+Typically, you will start with the crop data stored in the package
+as `croptimizer::crops`, although you are free to use your own data
+so long as columns have the same names and data type.
+
+```{r look-at-crops}
+head(croptimizer::crops)
+```
+
+## Calculate base seed price
+The first step is to calculate the cost of the seeds, which will depend on if you have a JojaMart membership or not. The `drop_cols`
+parameter determines if intermediate columns used in calculating 
+the base seed price should be preserved in the output or not. If you
+would find these columns useful, then use `drop_cols = TRUE`.
+
+```{r calc-seed-prices}
+croptimized_data <-
+  croptimizer::crops %>%
+  calc_seed_prices(joja_member = FALSE, drop_cols = TRUE)
+```
+
+```{r calc-seed-prices-keeping-cols}
+croptimized_data_with_extra_cols <-
+  croptimizer::crops %>%
+  calc_seed_prices(joja_member = FALSE, drop_cols = FALSE)
+```
+
+```{r diff-in-cols-from-drop-cols}
+setdiff(colnames(croptimized_data_with_extra_cols),
+        colnames(croptimized_data))
+```
+
+## Append the Soil Modification
+Soil modifications are appended to introduce effects for fertilizers
+and/or Speed-Gro. There are several ways to provide a `soil_mods` argument.
+
+One way to provide the soil mod argument is via a singleton character. In this case, it will be replicated for the number of rows of the dataset.
+
+```{r append-single-soil-mod}
+croptimized_data <-
+  croptimized_data %>%
+  append_soil_mod(soil_mods = "Quality Fertilizer")
+table(croptimized_data$soil_mod)
+```
+
+If no soil mod is supplied, then "Normal" is repeated for the number of rows of the data.
+```{r append-no-soil-mod, options}
+croptimized_data <-
+  croptimized_data %>%
+  append_soil_mod()
+table(croptimized_data$soil_mod)
+```
+
+If an unnamed vector of appropriate length is provided, then it will be simply appended to the dataset.
+
+```{r append-vector-soil-mod, options}
+croptimized_data <-
+  croptimized_data %>%
+  append_soil_mod(soil_mods = c(rep("Quality Fertilizer", 18),
+                                rep("Deluxe Fertilizer", 18)))
+table(croptimized_data$soil_mod)
+```
+
+Finally, if a named vector of any length is provided, then it
+will join to the crop data on those names, and any resulting NA's for soil mod will be filled with "Normal."
+
+```{r append-named-soil-mod, options}
+croptimized_data <-
+  croptimized_data %>%
+  append_soil_mod(soil_mods = c("Potato" = "Quality Fertilizer",
+                                "Blueberry" = "Speed-Gro"))
+table(croptimized_data$soil_mod)
+```
+
+## Filter to Seasons and Days
+Next, we need to filter to crops that grow in this season, and crops
+that have sufficient time to finish growing before the end of the season.
+```{r filter_to_seasons_and_days}
+croptimized_data <-
+  croptimized_data %>%
+  filter_to_season(season = "spring") %>%
+  filter_to_days(day_of_season = 1)
+```
+
+## Calculate the Sale Price of the Crop
+```{r calc-crop-sale-price}
+croptimized_data <-
+  croptimized_data %>%
+  calc_crop_sale_price(farming_level = 5, level_5_tiller = TRUE)
+```
+
+## Calculate Net Profit
+```{r add-net-profit}
+croptimized_data <-
+  croptimized_data %>%
+  calc_net_profit()
+```

@@ -58,7 +58,9 @@ append_soil_mod <- function(crop_data = croptimizer::crops,
   }
 
   ## Check for legit soil mods
-  if (sum(tools::toTitleCase(tolower(soil_mods)) %in% ACCEPTED_SOIL_MODS) !=
+  if (!is.null(names(soil_mods)) &&
+      sum(tools::toTitleCase(tolower(soil_mods)) %in%
+          ACCEPTED_SOIL_MODS) !=
       length(soil_mods)) {
     stop("non-standard soil mod name")
   }
@@ -94,7 +96,8 @@ append_soil_mod <- function(crop_data = croptimizer::crops,
       dplyr::left_join(y = soil_mods, by = "name") %>%
       dplyr::mutate(soil_mod = ifelse(test = is.na(soil_mod),
                                       yes = "Normal",
-                                      no = soil_mod))
+                                      no = soil_mod)) %>%
+      update_total_days_in_growth()
 
     return(crop_data)
   }

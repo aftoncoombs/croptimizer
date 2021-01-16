@@ -7,8 +7,7 @@
 calc_crop_sale_price(
   crop_data = croptimizer::crops,
   farming_level = 0,
-  level_5_tiller = NULL,
-  soil_mod = NULL
+  level_5_tiller = NULL
 )
 }
 \arguments{
@@ -27,4 +26,11 @@ at level 5}
 Calculates the expected value of a crop to sell, taking into account
 the probability of extra harvests and the number of crops in an extra
 harvest.
+}
+\examples{
+## Calculate crop sale prices if you have tiller specialty
+calc_crop_sale_price(farming_level = 5, level_5_tiller = TRUE)
+
+## Calculate crop sale price if you did not take tiller
+calc_crop_sale_price(farming_level = 10, level_5_tiller = FALSE)
 }

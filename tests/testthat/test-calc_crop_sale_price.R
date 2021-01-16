@@ -54,17 +54,3 @@ test_that("non-integer farming level produces warning", {
   expect_warning(calc_crop_sale_price(farming_level = 1.5))
 })
 
-test_that("non-null and non-character soil_mod produces error", {
-  expect_error(calc_crop_sale_price(soil_mod = TRUE))
-  expect_error(calc_crop_sale_price(soil_mod = 1))
-})
-
-test_that("non-standard crop names produces error", {
-  expect_error(calc_crop_sale_price(soil_mod =
-                                      c("boba" = "quality fertilizer")))
-})
-
-test_that("standard crop names are silent", {
-  expect_silent(calc_crop_sale_price(soil_mod =
-                                       c("Blueberry" = "Quality Fertilizer")))
-})

@@ -14,10 +14,14 @@
 #' @export
 #'
 #' @examples
+#' ## Calculate crop sale prices if you have tiller specialty
+#' calc_crop_sale_price(farming_level = 5, level_5_tiller = TRUE)
+#'
+#' ## Calculate crop sale price if you did not take tiller
+#' calc_crop_sale_price(farming_level = 10, level_5_tiller = FALSE)
 calc_crop_sale_price <- function(crop_data = croptimizer::crops,
                                  farming_level = 0,
-                                 level_5_tiller = NULL,
-                                 soil_mod = NULL) {
+                                 level_5_tiller = NULL) {
   if (! "sell_price" %in% colnames(crop_data)) {
     stop("crop_data must contain column sell_price")
   }
@@ -55,24 +59,6 @@ calc_crop_sale_price <- function(crop_data = croptimizer::crops,
     warning("farming level coerced to class integer")
   }
 
-  if (!is.null(soil_mod) & !"character" %in% class(soil_mod)) {
-    stop("soil_mod must be NULL or of type character")
-  }
-
-  ## Standardize the crop names if soil_mod is non-null
-  if (!is.null(soil_mod)) {
-    names(soil_mod) <- tolower(names(soil_mod))
-  }
-
-  ## Check to make sure names are all actual crop names
-  if (sum(names(soil_mod) %in% tolower(crops$name)) !=
-      length(unique(names(soil_mod)))) {
-    non_std_names <-
-      paste0(names(soil_mod)[! names(soil_mod) %in% tolower(crops$name)],
-             collapse = ",")
-    error(paste0("non standard soil_mod names:", non_std_names))
-  }
-
   farming_level <- as.integer(farming_level)
 
   ## Add 10% tiller bonus
@@ -85,22 +71,19 @@ calc_crop_sale_price <- function(crop_data = croptimizer::crops,
   crop_data$exp_num_crops <-
     ifelse(test = crop_data$chance_for_extra_crops == 0,
            yes = 1,
-           no = crop_data$min_extra_harves + crop_data$chance_for_extra_crops)
-
-  ## If soil mod is not already appended, assume no soil mod
-  if (! "soil_mod" %in% colnames(crop_data)) {
-    crop_data$soil_mod <- rep("Normal")
-  }
+           no = crop_data$min_extra_harvest + crop_data$chance_for_extra_crops)
 
   ## Calculate numeric soil mod
-  crop_data <-
-    crop_data %>%
-    dplyr::mutate(num_soil_mod =
-                    ifelse(test = soil_mod == "Quality Fertilizer",
-                           yes = 2,
-                           no = ifelse(test = soil_mod == "Basic Fertilizer",
-                                       yes = 1,
-                                       no = 0)))
+  if ("soil_mod" %in% colnames(crop_data)) {
+    crop_data <-
+      crop_data %>%
+      dplyr::mutate(num_soil_mod =
+                      ifelse(test = soil_mod == "Quality Fertilizer",
+                             yes = 2,
+                             no = ifelse(test = soil_mod == "Basic Fertilizer",
+                                         yes = 1,
+                                         no = 0)))
+  } else { crop_data$num_soil_mod = rep(0) }
 
   ## Get probabilities
   ## 1*P(normal) + 1.25*P(silver) + 1.5*P(gold)

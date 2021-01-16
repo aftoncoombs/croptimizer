@@ -13,7 +13,6 @@
 #' filter_to_season(season = "fall")
 filter_to_season <- function(season,
                              crop_data = croptimizer::crops,
-                             level_10_agri = NULL,
                              seasonsal_values = croptimizer::seasonal_values) {
 
   ## Error checking
@@ -21,16 +20,15 @@ filter_to_season <- function(season,
     stop("season must be character of length 1")
   }
 
+  ## Standardize season names
+  season <- tolower(season)
+
   if (! season %in% c("spring", "summer", "fall", "winter")) {
     stop("season must be one of spring, summer, fall, or winter")
   }
 
   if (!"data.frame" %in% class(crop_data)) {
     stop("crop data must be of class data.frame")
-  }
-
-  if (!is.null(level_10_agri) && !"logical" %in% class(level_10_agri)) {
-    stop("level_10_agri must be null or of class logical")
   }
 
   ## Get the current season column
@@ -65,12 +63,6 @@ filter_to_season <- function(season,
         }
       }
     }
-  }
-
-  ## If agriculturalist profession, total_days_in_growth * .9
-  if (!is.null(level_10_agri) && level_10_agri == TRUE) {
-    filtered_data$total_days_in_growth <-
-      ceiling(filtered_data$total_days_in_growth * 0.9)
   }
 
   return(filtered_data)

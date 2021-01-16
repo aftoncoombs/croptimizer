@@ -1,5 +1,16 @@
 ## Tests filter_to_season()
 
+test_that("season names are standardized", {
+  expect_silent(filter_to_season(season = "SPRING"))
+  expect_silent(filter_to_season(season = "Spring"))
+  expect_silent(filter_to_season(season = "SUMMER"))
+  expect_silent(filter_to_season(season = "Summer"))
+  expect_silent(filter_to_season(season = "FALL"))
+  expect_silent(filter_to_season(season = "Fall"))
+  expect_silent(filter_to_season(season = "WINTER"))
+  expect_silent(filter_to_season(season = "Winter"))
+})
+
 test_that("filtering to each season works", {
   expect_equal(unique(filter_to_season(season = "fall", crop_data = crops)$growth_season_fall),
                TRUE)
@@ -63,18 +74,5 @@ test_that("filtering to fall produces correct days remaining", {
                         28 * fall_test$growth_season_summer -
                         28 * fall_test$growth_season_spring)),
                nrow(fall_test))
-})
-
-test_that("error if level_10_agri is not null or not of class logical", {
-  expect_error(filter_to_season(season = "fall", level_10_agri = 1))
-  expect_error(filter_to_season(season = "fall", level_10_agri = as.integer(1)))
-  expect_error(filter_to_season(season = "fall", level_10_agri = "boba"))
-})
-
-test_that("if level_10_agri, then crops grow faster by 10%", {
-  no_agri <- filter_to_season(season = "fall")
-  yes_agri <- filter_to_season(season = "fall", level_10_agri = TRUE)
-  expect_equal(ceiling(no_agri$total_days_in_growth * 0.9),
-               yes_agri$total_days_in_growth)
 })
 

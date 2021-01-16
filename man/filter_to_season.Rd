@@ -7,7 +7,6 @@
 filter_to_season(
   season,
   crop_data = croptimizer::crops,
-  level_10_agri = NULL,
   seasonsal_values = croptimizer::seasonal_values
 )
 }
