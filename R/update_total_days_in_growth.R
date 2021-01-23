@@ -34,7 +34,7 @@ update_total_days_in_growth <- function(crop_data, level_10_agri = NULL) {
   if ("soil_mod" %in% colnames(crop_data)) {
     crop_data <-
       crop_data %>%
-      dplyr::left_join(y = croptimizer::speed_gro, by = "soil_mod") %>%
+      dplyr::left_join(y = croptimizer::speed_gro, by = c("soil_mod" = "soil_mod")) %>%
       dplyr::mutate(effect = ifelse(test = is.na(effect),
                                     yes = 1,
                                     no = effect)) %>%

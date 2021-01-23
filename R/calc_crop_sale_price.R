@@ -78,15 +78,17 @@ calc_crop_sale_price <- function(crop_data = croptimizer::crops,
     crop_data <-
       crop_data %>%
       dplyr::mutate(num_soil_mod =
-                      ifelse(test = soil_mod == "Quality Fertilizer",
-                             yes = 2,
-                             no = ifelse(test = soil_mod == "Basic Fertilizer",
-                                         yes = 1,
-                                         no = 0)))
+                      ifelse(test = soil_mod == "Deluxe Fertilizer",
+                             yes = 4,
+                             no = ifelse(test = soil_mod == "Quality Fertilizer",
+                                         yes = 2,
+                                         no = ifelse(test = soil_mod == "Basic Fertilizer",
+                                                     yes = 1,
+                                                     no = 0))))
   } else { crop_data$num_soil_mod = rep(0) }
 
   ## Get probabilities
-  ## 1*P(normal) + 1.25*P(silver) + 1.5*P(gold)
+  ## Expected value = 1*P(normal) + 1.25*P(silver) + 1.5*P(gold)
   ## where P(gold) = 0.01 + 0.2 * (lvl/10 + q * (lvl+2)/12)
   ## P(silver) = MIN(2*P(gold),0.75) * (1-P(gold))
   ## P(normal) = 1 - P(silver) - P(gold)
@@ -107,7 +109,8 @@ calc_crop_sale_price <- function(crop_data = croptimizer::crops,
                     sell_price *
                     exp_num_crops *
                     (p_normal + 1.25 * p_silver + 1.5 * p_gold) *
-                    tiller_bonus)
+                    tiller_bonus) #%>%
+    #dplyr::select(-p_gold, -p_silver, -p_normal)
 
   return(crop_data)
 }

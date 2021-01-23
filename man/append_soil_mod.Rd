@@ -4,11 +4,7 @@
 \alias{append_soil_mod}
 \title{Append Soil Mod}
 \usage{
-append_soil_mod(
-  crop_data = croptimizer::crops,
-  soil_mods = NULL,
-  soil_mod_names = croptimizer::soil_mod_names
-)
+append_soil_mod(crop_data = croptimizer::crops, soil_mods = NULL)
 }
 \arguments{
 \item{crop_data}{a data.frame containing the data about the crops,
@@ -31,7 +27,7 @@ expected sale price is (using `calc_crop_sale_price()`).
 }
 \details{
 If soil_mods are NULL, "Normal" is repeated. If soil_mods is a singleton,
-it is repeated. If soil_mods is a non-name vector, cbind is attempted.
+it is repeated. If soil_mods is a non-named vector, cbind is attempted.
 If soil_mod is a named vector, names should be a crop name (e.g. "Blueberry")
 and a left join will be attempted.
 }

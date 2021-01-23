@@ -1,31 +1,31 @@
 ## Load crops data
 
-## Example flow of functions
+## Example flow of functions if you do it one by one
 ## 1) Start with crop data in package
 ## 2) calc base seed price with calc_seed_prices()
 ## 3) append soil modification (e.g. speed gro, fert)
 ## 4) filter_to_season()/filter_to_days()
 ## 5) get sale price with calc_crop_sale_price()
+## 6) Get net profit
+
+## Example flow of funcions if you use the wrapper function
+## 1) croptimize()
 
 ## Little TODO's
-## TODO: Fix error in append soil mod that only allows joining on names
-## if a single element (doesn't work for multiples) and also update tests
-## TODO: Add checking for non-standard fertilizers and speed gro
-## (specifically in the case of a non-named vector)
 ## TODO: Verify that speed gro results are floored
 ## TODO: Fix inefficient calc_crop_sale_price by actually selecting the joja_col
-## TODO: Work on the vignette
+## TODO: Work on the vignette?
 
 ## Medium TODO's
+## TODO: Add optimize_soil_mod() function
+## TODO: Add graphs
 ## TODO: Account for the cost of soil modifiers
-## TODO: add optimize_soil_mod() function
-## TODO: take package data out of user-accessible params
+## TODO: Take package data out of user-accessible params
 
 ## Big TODO's
 ## TODO: Accept a list of items you already have, and mark their price as 0
-## TODO: Pass the size of available land
-## TODO: maybe? address contiguous crops
-## TODO: add in specialty shop crops and seeds
+## TODO: Pass the size of available land and maybe address contiguous crops?
+## TODO: Add in specialty shop crops and seeds
 
 crops <-
   rstardew::crops %>%

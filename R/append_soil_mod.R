@@ -6,7 +6,7 @@
 #' expected sale price is (using `calc_crop_sale_price()`).
 #'
 #' If soil_mods are NULL, "Normal" is repeated. If soil_mods is a singleton,
-#' it is repeated. If soil_mods is a non-name vector, cbind is attempted.
+#' it is repeated. If soil_mods is a non-named vector, cbind is attempted.
 #' If soil_mod is a named vector, names should be a crop name (e.g. "Blueberry")
 #' and a left join will be attempted.
 #'
@@ -30,8 +30,7 @@
 #'   soil_mod_data <-
 #'   append_soil_mod(soil_mods = soil_mods)
 append_soil_mod <- function(crop_data = croptimizer::crops,
-                            soil_mods = NULL,
-                            soil_mod_names = croptimizer::soil_mod_names) {
+                            soil_mods = NULL) {
 
   ACCEPTED_SOIL_MODS <-
     c("Normal",
@@ -51,18 +50,20 @@ append_soil_mod <- function(crop_data = croptimizer::crops,
     return(crop_data)
   }
 
+  ## Standardize soil mod names
+  soil_mods <- tools::toTitleCase(tolower(soil_mods))
+
+  ## Error if non-standard soil mod names
+  if (sum(soil_mods %in% ACCEPTED_SOIL_MODS) != length(soil_mods)) {
+    stop(paste0("Non-standard soil_mods: ",
+                paste0(unique(soil_mods[! soil_mods %in% ACCEPTED_SOIL_MODS]),
+                       collapse = ", ")))
+  }
+
   ## Rep if just a singleton soil mod
   if (length(soil_mods) == 1) {
     crop_data$soil_mod <- rep(x = tools::toTitleCase(tolower(soil_mods)))
     return(crop_data)
-  }
-
-  ## Check for legit soil mods
-  if (!is.null(names(soil_mods)) &&
-      sum(tools::toTitleCase(tolower(soil_mods)) %in%
-          ACCEPTED_SOIL_MODS) !=
-      length(soil_mods)) {
-    stop("non-standard soil mod name")
   }
 
   ## Check for unique names, if named
