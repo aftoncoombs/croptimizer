@@ -97,8 +97,8 @@ append_soil_mod <- function(crop_data = croptimizer::crops,
       dplyr::left_join(y = soil_mods, by = "name") %>%
       dplyr::mutate(soil_mod = ifelse(test = is.na(soil_mod),
                                       yes = "Normal",
-                                      no = soil_mod)) %>%
-      update_total_days_in_growth()
+                                      no = soil_mod))# %>%
+      #update_total_days_in_growth()
 
     return(crop_data)
   }

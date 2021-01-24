@@ -92,24 +92,19 @@ calc_crop_sale_price <- function(crop_data = croptimizer::crops,
   ## where P(gold) = 0.01 + 0.2 * (lvl/10 + q * (lvl+2)/12)
   ## P(silver) = MIN(2*P(gold),0.75) * (1-P(gold))
   ## P(normal) = 1 - P(silver) - P(gold)
-  crop_data <-
-    crop_data %>%
-    dplyr::mutate(p_gold =
-                    0.01 + 0.2 *
-                    (farming_level/10 + num_soil_mod *
-                       (farming_level+2)/12)) %>%
-    dplyr::mutate(p_silver =
-                    min(c(2*p_gold, 0.75), na.rm = TRUE) * (1-p_gold)) %>%
-    dplyr::mutate(p_normal = 1 - p_gold - p_silver)
+  crop_data$p_gold <-
+    0.01 + 0.2 *(farming_level/10 + num_soil_mod * (farming_level+2)/12)
+
+  crop_data$p_silver <-
+    min(c(2*crop_data$p_gold, 0.75), na.rm = TRUE) * (1-crop_data$p_gold)
+
+  crop_data$p_normal <- 1 - crop_data$p_gold - crop_data$p_silver
 
   ## Calculate the expected value
-  crop_data <-
-    crop_data %>%
-    dplyr::mutate(exp_sell_price =
-                    sell_price *
-                    exp_num_crops *
-                    (p_normal + 1.25 * p_silver + 1.5 * p_gold) *
-                    tiller_bonus) #%>%
+  crop_data$exp_sell_price <-
+    crop_data$sell_price * crop_data$exp_num_crops *
+    (crop_data$p_normal + 1.25 * crop_data$p_silver + 1.5 * crop_data$p_gold) *
+    tiller_bonus #%>%
     #dplyr::select(-p_gold, -p_silver, -p_normal)
 
   return(crop_data)
